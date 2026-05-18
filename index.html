@@ -248,6 +248,25 @@
         </div>
     </div>
 
+    <div id="confirmActionModal" class="modal">
+        <div class="modal-content" style="max-width: 420px;">
+            <div class="modal-header">
+                <div><h2 id="confirmModalTitle">Confirmar Acción</h2></div>
+                <button class="modal-close" onclick="closeModal('confirmActionModal')"><span>&times;</span></button>
+            </div>
+            <div class="modal-body" style="text-align: center; padding: 2rem 1.5rem;">
+                <p id="confirmModalText" style="font-size: 1.1rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.5rem;"></p>
+                <p id="confirmModalSubtext" style="font-size: 0.9rem; color: var(--text-muted);"></p>
+            </div>
+            <div class="modal-footer" style="justify-content: center; gap: 1rem; background: transparent; border: none; padding-top: 0;">
+                <button class="btn-timeout" onclick="closeModal('confirmActionModal')" style="width: 100%; justify-content: center;">Cancelar</button>
+                <button class="btn-complete" id="confirmModalBtn" style="width: 100%; justify-content: center;">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container"></div>
+
     <script>
         let activeUser = 'Álex';
         const appState = {
@@ -263,9 +282,9 @@
             ],
 
             completedTasks: [
-                { id: 'c1', name: 'Limpieza general del salón', points: 14, shared: 0, date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() }, 
-                { id: 'c2', name: 'Aspirar pasillos', points: 9, shared: 0, date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString() },
-                { id: 'c3', name: 'Tirar vidrio y cartón', points: 5, shared: 0, date: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString() } 
+                { id: 'c1', name: 'Limpieza general del salón', points: 14, shared: 0, date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), canUndo: false }, 
+                { id: 'c2', name: 'Aspirar pasillos', points: 9, shared: 0, date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), canUndo: false },
+                { id: 'c3', name: 'Tirar vidrio y cartón', points: 5, shared: 0, date: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(), canUndo: false } 
             ],
 
             floorHistory: [
@@ -493,18 +512,6 @@
             `).join('');
         }
 
-        function rescueTask(id) {
-            const taskIndex = appState.pausedByOthers.findIndex(t => t.id === id);
-            const task = appState.pausedByOthers[taskIndex];
-            appState.pausedByOthers.splice(taskIndex, 1);
-            appState.myTasks.unshift({
-                id: `r_${Date.now()}`, name: task.name, meta: `Recuperada de ${task.owner}`,
-                points: task.points, icon: '🆘', urgency: 'urgent', difficulty: 'easy', isPaused: false, rescued: true, owner: task.owner, subtasks: []
-            });
-            calculateOverallHealth();
-            switchTab('my-tasks');
-        }
-
         function completeTask(id) {
             const taskIndex = appState.myTasks.findIndex(t => t.id === id);
             const task = appState.myTasks[taskIndex];
@@ -546,33 +553,26 @@
             closeModal('sharePointsModal');
         }
 
-        function finalizeTask(index, gainedPoints, sharedPoints) {
-            const task = appState.myTasks[index];
-            appState.myTasks.splice(index, 1);
-            appState.users[activeUser] += gainedPoints;
-            if (task.owner && sharedPoints > 0) appState.users[task.owner] += sharedPoints;
-
-            appState.completedTasks.unshift({ id: `c_${Date.now()}`, name: task.name, points: gainedPoints, shared: sharedPoints, date: new Date().toISOString() });
-            
-            calculateOverallHealth();
-            renderMyTasks(); 
-            updateLeaderboard();
-        }
-
+        // --- ACTUALIZADO: RENDERIZAR PESTAÑA COMPLETADAS CON BOTÓN RESTAURAR ---
         function renderCompletedTab() {
             const list = document.getElementById('completed-tasks-list');
             const totalPts = appState.completedTasks.reduce((acc, t) => acc + t.points, 0);
             document.getElementById('completedTasksSummary').innerHTML = `<p><strong>${appState.completedTasks.length}</strong> tareas completadas</p><p><strong>${totalPts}</strong> puntos aportados por ti</p>`;
-            list.innerHTML = appState.completedTasks.map(t => `
+            list.innerHTML = appState.completedTasks.map(t => {
+                const restoreBtnHTML = t.canUndo ? `<button class="btn-restore" onclick="undoTask('${t.id}')">Restaurar ⏱️</button>` : '';
+                return `
                 <div class="history-floor-item" style="background:var(--status-easy-bg); border-color:var(--status-easy-text);">
                     <div class="activity-avatar">✅</div>
                     <div class="activity-details">
                         <p class="activity-text"><strong>${t.name}</strong></p>
                         ${t.shared > 0 ? `<p class="activity-time" style="color:var(--primary);">Compartiste ${t.shared} pts</p>` : ''}
                     </div>
-                    <div class="activity-points" style="color:var(--status-easy-text);">+${t.points} pts</div>
+                    <div class="activity-points" style="color:var(--status-easy-text); display:flex; align-items:center; gap:0.5rem; white-space:nowrap;">
+                        +${t.points} pts
+                        ${restoreBtnHTML}
+                    </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function renderHistoryTab() {
@@ -598,23 +598,6 @@
             container.innerHTML = renderItems(appState.floorHistory.slice(0, 4));
             document.getElementById('history-show-more').style.display = appState.floorHistory.length > 4 ? 'block' : 'none';
             if(fullContainer) fullContainer.innerHTML = renderItems(appState.floorHistory);
-        }
-
-        function auditTask(id) {
-            const index = appState.floorHistory.findIndex(t => t.id === id);
-            if (index > -1) {
-                const task = appState.floorHistory[index];
-                appState.users[task.owner] = Math.max(0, appState.users[task.owner] - task.points);
-                appState.floorHistory.splice(index, 1);
-                
-                calculateOverallHealth();
-                updateLeaderboard();
-                renderHistoryTab();
-                
-                if(document.getElementById('fullHistoryModal').style.display === 'flex') {
-                    renderHistoryTab(); 
-                }
-            }
         }
 
         function updateLeaderboard() {
@@ -755,6 +738,180 @@
             if(id === 'profileModal') renderProfileChart();
         }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        // ==========================================
+        // LÓGICA: DOBLE CONFIRMACIÓN Y DESHACER
+        // ==========================================
+
+        let pendingConfirmCallback = null;
+        let undoTimers = {};
+
+        function openConfirmModal(title, text, subtext, confirmLabel, isDestructive, callback) {
+            document.getElementById('confirmModalTitle').textContent = title;
+            document.getElementById('confirmModalText').textContent = text;
+            document.getElementById('confirmModalSubtext').textContent = subtext;
+            
+            const btn = document.getElementById('confirmModalBtn');
+            btn.textContent = confirmLabel;
+            
+            if(isDestructive) {
+                btn.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                btn.style.boxShadow = '0 4px 12px rgba(220, 38, 38, 0.4)';
+            } else {
+                btn.style.background = 'var(--primary)';
+                btn.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.5)';
+            }
+
+            pendingConfirmCallback = callback;
+            openModal('confirmActionModal');
+        }
+
+        document.getElementById('confirmModalBtn').addEventListener('click', () => {
+            if (pendingConfirmCallback) pendingConfirmCallback();
+            closeModal('confirmActionModal');
+        });
+
+        function showUndoToast(taskId, taskName, historyId) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast-msg';
+            toast.id = `toast-${historyId}`;
+            
+            toast.innerHTML = `
+                <div class="toast-text">
+                    Completaste: <strong>${taskName}</strong><br>
+                    <span style="font-size:0.75rem; color:var(--text-muted);">Puedes restaurarla en los próximos 10 min.</span>
+                </div>
+                <button class="btn-undo" onclick="undoTask('${historyId}')">Deshacer Error</button>
+            `;
+            
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => toast.remove(), 400); 
+            }, 8000); 
+
+            // --- ACTUALIZADO: Si caduca, actualizamos la vista de completadas ---
+            undoTimers[historyId] = setTimeout(() => {
+                const ct = appState.completedTasks.find(t => t.id === historyId);
+                if (ct) {
+                    ct.canUndo = false;
+                    // Actualizar la lista en vivo si el usuario está mirando esa pestaña
+                    if(document.querySelector(`.tab-content[data-tab="my-completed"]`).classList.contains('active')) {
+                        renderCompletedTab();
+                    }
+                }
+            }, 10 * 60 * 1000);
+        }
+
+        function undoTask(historyId) {
+            const index = appState.completedTasks.findIndex(t => t.id === historyId);
+            if (index === -1) return;
+            
+            const ct = appState.completedTasks[index];
+            if (ct.canUndo === false) {
+                alert("Han pasado más de 10 minutos, esta acción ya es permanente.");
+                return;
+            }
+
+            const toastEl = document.getElementById(`toast-${historyId}`);
+            if (toastEl) toastEl.remove();
+
+            appState.users[activeUser] -= ct.points;
+            if (ct.shared > 0 && ct.originalTask && ct.originalTask.owner) {
+                appState.users[ct.originalTask.owner] -= ct.shared;
+            }
+
+            appState.completedTasks.splice(index, 1);
+            if(ct.originalTask) {
+                appState.myTasks.unshift(ct.originalTask);
+            }
+
+            clearTimeout(undoTimers[historyId]); 
+
+            calculateOverallHealth();
+            renderMyTasks();
+            updateLeaderboard();
+            if(document.querySelector(`.tab-content[data-tab="my-completed"]`).classList.contains('active')) {
+                renderCompletedTab();
+            }
+        }
+
+        function finalizeTask(index, gainedPoints, sharedPoints) {
+            const task = appState.myTasks[index];
+            appState.myTasks.splice(index, 1);
+            appState.users[activeUser] += gainedPoints;
+            
+            if (task.owner && sharedPoints > 0) appState.users[task.owner] += sharedPoints;
+
+            const historyId = `c_${Date.now()}`;
+            
+            appState.completedTasks.unshift({ 
+                id: historyId, 
+                name: task.name, 
+                points: gainedPoints, 
+                shared: sharedPoints, 
+                date: new Date().toISOString(),
+                originalTask: task, 
+                canUndo: true       
+            });
+            
+            showUndoToast(task.id, task.name, historyId); 
+            
+            calculateOverallHealth();
+            renderMyTasks(); 
+            updateLeaderboard();
+        }
+
+        function rescueTask(id) {
+            const taskIndex = appState.pausedByOthers.findIndex(t => t.id === id);
+            const task = appState.pausedByOthers[taskIndex];
+            
+            openConfirmModal(
+                '🤝 Rescatar Tarea', 
+                `¿Quieres encargarte de "${task.name}"?`, 
+                `Ganarás puntos extra y se notificará a ${task.owner}. No podrás devolverla una vez aceptada.`, 
+                'Sí, encargarme',
+                false, 
+                () => {
+                    appState.pausedByOthers.splice(taskIndex, 1);
+                    appState.myTasks.unshift({
+                        id: `r_${Date.now()}`, name: task.name, meta: `Recuperada de ${task.owner}`,
+                        points: task.points, icon: '🆘', urgency: 'urgent', difficulty: 'easy', isPaused: false, rescued: true, owner: task.owner, subtasks: []
+                    });
+                    calculateOverallHealth();
+                    switchTab('my-tasks');
+                }
+            );
+        }
+
+        function auditTask(id) {
+            const index = appState.floorHistory.findIndex(t => t.id === id);
+            if (index > -1) {
+                const task = appState.floorHistory[index];
+                
+                openConfirmModal(
+                    '🚩 Reportar Trampa', 
+                    `¿Seguro que ${task.owner} NO ha completado "${task.name}"?`, 
+                    `Se le restarán ${task.points} pts. Esto puede generar conflictos en el piso, úsalo con responsabilidad.`, 
+                    'Sí, reportar',
+                    true, 
+                    () => {
+                        appState.users[task.owner] = Math.max(0, appState.users[task.owner] - task.points);
+                        appState.floorHistory.splice(index, 1);
+                        
+                        calculateOverallHealth();
+                        updateLeaderboard();
+                        renderHistoryTab();
+                        if(document.getElementById('fullHistoryModal').style.display === 'flex') {
+                            renderHistoryTab(); 
+                        }
+                    }
+                );
+            }
+        }
     </script>
 </body>
 </html>

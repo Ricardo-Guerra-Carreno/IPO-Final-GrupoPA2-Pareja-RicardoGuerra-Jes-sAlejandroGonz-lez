@@ -61,14 +61,14 @@ body {
     display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.75rem;
     border: 1px solid rgba(148, 163, 184, 0.35); border-radius: 0.9rem;
     background: rgba(15, 23, 42, 0.45); transition: all 0.2s ease; cursor: pointer;
-    flex-shrink: 0; /* Mantiene la forma del botón intacta */
+    flex-shrink: 0; 
 }
 .profile-chip:hover { border-color: rgba(129, 140, 248, 0.55); background: rgba(30, 41, 59, 0.55); box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.25); }
 .profile-name { 
     font-size: 0.9rem; 
     font-weight: 600; 
     color: var(--text-main); 
-    white-space: nowrap; /* Evita que el texto salte a la línea inferior */
+    white-space: nowrap; 
 }
 
 .health-indicator { display: flex; flex-direction: column; align-items: flex-start; gap: 0.375rem; padding: 0.5rem 1rem; background-color: rgba(99, 102, 241, 0.08); border-radius: 0.75rem; border: 1px solid var(--border-light); width: 250px; flex-shrink: 0; }
@@ -142,8 +142,6 @@ body {
 .subtask-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); cursor: pointer; transition: color 0.2s; }
 .subtask-label:hover { color: var(--text-main); }
 .subtask-label input[type="checkbox"] { accent-color: var(--primary); width: 16px; height: 16px; cursor: pointer; }
-.btn-suggest { background: transparent; color: var(--primary); border: 1px dashed var(--primary); padding: 0.3rem 0.6rem; border-radius: 0.4rem; font-size: 0.75rem; font-weight: 600; cursor: pointer; margin-top: 0.5rem; transition: all 0.2s;}
-.btn-suggest:hover { background: rgba(99, 102, 241, 0.1); }
 
 .task-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 0.75rem; justify-content: space-between; height: 100%;}
 .points-reward { text-align: right; display: flex; align-items: center; gap: 0.5rem; }
@@ -152,7 +150,7 @@ body {
 .points-reward .pts-number { display: block; font-size: 1.25rem; font-weight: 700; color: var(--primary); }
 .points-reward .pts-label { display: block; font-size: 0.65rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
 
-.task-buttons { display: flex; gap: 0.5rem; width: 100%; justify-content: flex-end; align-items: center; }
+.task-buttons { display: flex; gap: 1.5rem; width: 100%; justify-content: flex-end; align-items: center; margin-top: 0.5rem; }
 
 .btn-checkbox { background: transparent; border: none; cursor: pointer; outline: none; padding: 0; transition: transform 0.2s; display: flex; align-items: center; }
 .btn-checkbox .chk-circle { width: 44px; height: 44px; border-radius: 50%; border: 3px solid var(--primary); background: rgba(99, 102, 241, 0.1); display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(99,102,241,0.2); }
@@ -162,7 +160,7 @@ body {
 .btn-checkbox[disabled] { cursor: not-allowed; opacity: 0.4; }
 .btn-checkbox[disabled]:hover .chk-circle { background: transparent; transform: none; }
 
-.btn-timeout { background: linear-gradient(135deg, rgba(249, 115, 22, 0.2) 0%, rgba(251, 146, 60, 0.12) 100%); color: #fdba74; border: 1px solid rgba(249, 115, 22, 0.5); padding: 0.6rem 1rem; border-radius: 0.75rem; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.4rem; height: fit-content; }
+.btn-timeout { background: linear-gradient(135deg, rgba(249, 115, 22, 0.2) 0%, rgba(251, 146, 60, 0.12) 100%); color: #fdba74; border: 1px solid rgba(249, 115, 22, 0.5); padding: 0.7rem 1.2rem; border-radius: 0.75rem; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.4rem; height: fit-content; margin-right: auto; }
 .btn-timeout:hover { background: linear-gradient(135deg, rgba(249, 115, 22, 0.34) 0%, rgba(251, 146, 60, 0.2) 100%); border-color: rgba(251, 146, 60, 0.9); color: #ffedd5; transform: translateY(-1px); }
 
 .btn-complete { background-color: var(--primary); color: white; border: none; padding: 0.625rem 1.25rem; border-radius: 0.75rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display:flex; align-items:center; justify-content: center; }
@@ -349,8 +347,6 @@ body {
 :root[data-theme="light"] .subtasks-container { border-left-color: #d0c3b3; }
 :root[data-theme="light"] .subtask-label { color: #8b7d70; }
 :root[data-theme="light"] .subtask-label:hover { color: #2d2620; }
-:root[data-theme="light"] .btn-suggest { color: #d4874a; border-color: #d4874a; }
-:root[data-theme="light"] .btn-suggest:hover { background: rgba(212, 135, 74, 0.1); }
 
 :root[data-theme="light"] .btn-checkbox .chk-circle { border-color: #d4874a; background: rgba(212, 135, 74, 0.1); box-shadow: 0 4px 10px rgba(212, 135, 74, 0.2); }
 :root[data-theme="light"] .btn-checkbox:hover .chk-circle { background: #d4874a; }
@@ -429,4 +425,141 @@ body {
 }
 :root[data-theme="light"] .btn-audit-red:active {
     box-shadow: 0 0 0 #b91c1c;
+}
+
+/* ========================================================
+   10. MEJORAS DE USABILIDAD (HEURÍSTICAS)
+   ======================================================== */
+
+/* 1. Mejora del affordance del botón "Sugerir División" */
+.btn-suggest {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.15) 100%);
+    color: #818cf8;
+    border: 1px solid rgba(99, 102, 241, 0.4);
+    padding: 0.5rem 1.2rem;
+    border-radius: 0.6rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 0.75rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.btn-suggest:hover {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(99, 102, 241, 0.3) 100%);
+    border-color: var(--primary);
+    color: #e0e7ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+/* 2. Redimensión y separación del botón de Pausa para evitar missclicks */
+.task-buttons {
+    gap: 1.5rem; 
+    margin-top: 0.5rem;
+}
+
+.btn-timeout {
+    margin-right: auto;
+    padding: 0.7rem 1.2rem; 
+}
+
+/* 3. Estilos para el Toast Progresivo (Deshacer Tarea) */
+.toast-container {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    z-index: 9999;
+    pointer-events: none; 
+}
+
+.toast-msg {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    padding: 1rem 1.5rem;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    pointer-events: auto; 
+    animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.toast-text { color: var(--text-main); font-size: 0.9rem; font-weight: 500; line-height: 1.4; }
+.toast-text strong { color: var(--primary); }
+
+.btn-undo {
+    background: rgba(239, 68, 68, 0.15); /* Fondo sutil */
+    color: #f87171; /* Texto rojo pastel brillante */
+    border: 2px solid #ef4444; /* Borde sólido de 2px para enmarcar y llamar la atención */
+    padding: 0.45rem 0.9rem;
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.1);
+}
+
+.btn-undo:hover { 
+    background: #ef4444; /* Se vuelve sólido al interactuar */
+    color: white; 
+    transform: scale(1.05); 
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(120%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+:root[data-theme="light"] .toast-msg { background: #f5ede2; border-color: #dccfbe; }
+:root[data-theme="light"] .toast-text { color: #2d2620; }
+:root[data-theme="light"] .btn-suggest { background: #f5ede2; border-color: #d4874a; color: #b8683a; }
+:root[data-theme="light"] .btn-suggest:hover { background: rgba(212, 135, 74, 0.15); border-color: #8b4a2f; color: #5a2d1a; }
+
+/* 4. Estilos para el botón Restaurar en la lista del historial */
+/* 4. Estilos para el botón Restaurar en la lista del historial */
+/* 4. Estilos para el botón Restaurar en la lista del historial */
+.btn-restore {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid #ef4444; /* Borde para que destaque frente al fondo verde de completado */
+    padding: 0.3rem 0.6rem;
+    border-radius: 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: 0.5rem;
+}
+
+.btn-restore:hover {
+    background: #ef4444;
+    color: white;
+    border-color: #ef4444;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+/* Modo claro: Ajuste para que se lea bien sobre fondos más luminosos */
+:root[data-theme="light"] .btn-restore {
+    background: rgba(239, 68, 68, 0.08);
+    color: #dc2626; /* Texto un poco más oscuro para asegurar contraste */
+    border: 1px solid #ef4444;
+}
+
+:root[data-theme="light"] .btn-restore:hover {
+    background: #ef4444;
+    color: white;
 }
